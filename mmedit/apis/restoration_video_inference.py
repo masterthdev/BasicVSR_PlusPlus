@@ -110,12 +110,12 @@ def restoration_video_inference(model,
                     output = torch.cat(output, dim=1)
 
                     file_extension = os.path.splitext(args.output_dir)[1]
-                    #for i in range(args.start_idx, args.start_idx + output.size(1)):
-                    output_i = output[:, 0 - args.start_idx, :, :, :]
-                    output_i = tensor2img(output_i)
-                    save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(i)}'
+                    for ii in range(args.start_idx, args.start_idx + output.size(1)):
+                        output_i = output[:, ii - args.start_idx, :, :, :]
+                        output_i = tensor2img(output_i)
+                        save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(ii)}'
 
-                    mmcv.imwrite(output_i, save_path_i)
-                    print("imwrite " + str(i))
+                        mmcv.imwrite(output_i, save_path_i)
+                        print("imwrite " + str(ii))
 
     return 
