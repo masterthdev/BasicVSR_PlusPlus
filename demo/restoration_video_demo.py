@@ -60,7 +60,7 @@ def main():
 
     restoration_video_inference(model, args.input_dir,
                                          args.window_size, args.start_idx,
-                                         args.filename_tmpl, args.max_seq_len)
+                                         args.filename_tmpl, args,args.max_seq_len)
 
 
 
