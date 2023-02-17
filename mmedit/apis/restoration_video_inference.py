@@ -3,6 +3,7 @@ import glob
 import os.path as osp
 import re
 from functools import reduce
+import os
 
 import mmcv
 import numpy as np
