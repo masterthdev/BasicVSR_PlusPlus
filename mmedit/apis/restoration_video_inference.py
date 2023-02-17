@@ -28,8 +28,8 @@ def restoration_video_inference(model,
                                 img_dir,
                                 window_size,
                                 start_idx,
-                                filename_tmpl,
-                                max_seq_len=None,args):
+                                filename_tmpl,args,
+                                max_seq_len=None):
 
     device = next(model.parameters()).device  # model device
 
