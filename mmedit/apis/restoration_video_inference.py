@@ -24,32 +24,12 @@ def pad_sequence(data, window_size):
 
     return data
 
-
 def restoration_video_inference(model,
                                 img_dir,
                                 window_size,
                                 start_idx,
                                 filename_tmpl,
-                                max_seq_len=None):
-    """Inference image with the model.
-
-    Args:
-        model (nn.Module): The loaded model.
-        img_dir (str): Directory of the input video.
-        window_size (int): The window size used in sliding-window framework.
-            This value should be set according to the settings of the network.
-            A value smaller than 0 means using recurrent framework.
-        start_idx (int): The index corresponds to the first frame in the
-            sequence.
-        filename_tmpl (str): Template for file name.
-        max_seq_len (int | None): The maximum sequence length that the model
-            processes. If the sequence length is larger than this number,
-            the sequence is split into multiple segments. If it is None,
-            the entire sequence is processed at once.
-
-    Returns:
-        Tensor: The predicted restoration result.
-    """
+                                max_seq_len=None,args):
 
     device = next(model.parameters()).device  # model device
 
@@ -119,11 +99,20 @@ def restoration_video_inference(model,
                 result = model(
                     lq=data.to(device), test_mode=True)['output'].cpu()
             else:
-                result = []
                 for i in range(0, data.size(1), max_seq_len):
-                    result.append(
+                    output = []
+                    output.append(
                         model(
                             lq=data[:, i:i + max_seq_len].to(device),
                             test_mode=True)['output'].cpu())
-                result = torch.cat(result, dim=1)
-    return result
+                    output = torch.cat(result, dim=1)
+
+                    file_extension = os.path.splitext(args.output_dir)[1]
+                    #for i in range(args.start_idx, args.start_idx + output.size(1)):
+                    output_i = output[:, i - args.start_idx, :, :, :]
+                    output_i = tensor2img(output_i)
+                    save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(i)}'
+
+                    mmcv.imwrite(output_i, save_path_i)
+
+    return 
