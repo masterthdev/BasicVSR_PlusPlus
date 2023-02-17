@@ -111,7 +111,7 @@ def restoration_video_inference(model,
 
                     file_extension = os.path.splitext(args.output_dir)[1]
                     #for i in range(args.start_idx, args.start_idx + output.size(1)):
-                    output_i = output[:, i - args.start_idx, :, :, :]
+                    output_i = output[:, 0 - args.start_idx, :, :, :]
                     output_i = tensor2img(output_i)
                     save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(i)}'
 
