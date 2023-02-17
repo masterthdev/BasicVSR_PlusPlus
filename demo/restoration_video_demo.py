@@ -164,12 +164,12 @@ def main():
 
     args = parse_args()
 
-    model = init_model(
+    mdl = init_model(
         args.config, args.checkpoint, device=torch.device('cuda', args.device))
 
     
     
-    restoration_video_inference(model, args.input_dir,
+    restoration_video_inference(mdl, args.input_dir,
                                          args.window_size, args.start_idx,
                                          args.filename_tmpl, args.max_seq_len, args)
     
