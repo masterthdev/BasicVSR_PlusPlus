@@ -113,9 +113,9 @@ def restoration_video_inference(model,
                     for ii in range(args.start_idx, args.start_idx + output.size(1)):
                         output_i = output[:, ii - args.start_idx, :, :, :]
                         output_i = tensor2img(output_i)
-                        save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(ii)}'
+                        save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(i*max_seq_len +ii)}'
 
                         mmcv.imwrite(output_i, save_path_i)
-                        print("imwrite " + str(ii))
+                        print("imwrite " + str(i*max_seq_len +ii))
 
     return 
