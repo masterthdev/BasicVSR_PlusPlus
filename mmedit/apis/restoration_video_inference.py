@@ -10,6 +10,7 @@ import numpy as np
 import torch
 
 from mmedit.datasets.pipelines import Compose
+from mmedit.core import tensor2img
 
 VIDEO_EXTENSIONS = ('.mp4', '.mov')
 
