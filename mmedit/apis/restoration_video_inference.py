@@ -49,8 +49,11 @@ def restoration_video_inference(model,
         video_reader = mmcv.VideoReader(img_dir)
         # load the images
         data = dict(lq=[], lq_path=None, key=img_dir)
+        framno = 0
         for frame in video_reader:
             data['lq'].append(np.flip(frame, axis=2))
+            print("vidframe " + str(framno))
+            framno += 1
 
         # remove the data loading pipeline
         tmp_pipeline = []
