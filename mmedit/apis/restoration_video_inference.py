@@ -105,7 +105,7 @@ def restoration_video_inference(model,
                         model(
                             lq=data[:, i:i + max_seq_len].to(device),
                             test_mode=True)['output'].cpu())
-                    output = torch.cat(result, dim=1)
+                    output = torch.cat(output, dim=1)
 
                     file_extension = os.path.splitext(args.output_dir)[1]
                     #for i in range(args.start_idx, args.start_idx + output.size(1)):
@@ -114,5 +114,6 @@ def restoration_video_inference(model,
                     save_path_i = f'{args.output_dir}/{args.filename_tmpl.format(i)}'
 
                     mmcv.imwrite(output_i, save_path_i)
+                    print("imwrite " + str(i))
 
     return 
