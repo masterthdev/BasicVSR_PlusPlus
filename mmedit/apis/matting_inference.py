@@ -1,6 +1,7 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import mmcv
 import torch
+import torch.nn as nn
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
 
@@ -33,6 +34,9 @@ def init_model(config, checkpoint=None, device='cuda:0'):
         checkpoint = load_checkpoint(model, checkpoint)
 
     model.cfg = config  # save the config in the model for convenience
+    if device != 'cuda:0':
+        model= nn.DataParallel(model)
+        
     model.to(device)
     model.eval()
     return model
