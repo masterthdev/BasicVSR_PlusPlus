@@ -9,7 +9,7 @@ from mmedit.datasets.pipelines import Compose
 from mmedit.models import build_model
 
 
-def init_model(config, checkpoint=None, kaggle=false,device='cuda:0'):
+def init_model(config, checkpoint=None, kaggle=False,device='cuda:0'):
     """Initialize a model from config file.
 
     Args:
