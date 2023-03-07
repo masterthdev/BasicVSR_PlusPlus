@@ -6,7 +6,6 @@ import cv2
 import mmcv
 import numpy as np
 import torch
-import gc
 
 from mmedit.apis import init_model, restoration_video_inference
 from mmedit.core import tensor2img
@@ -58,8 +57,7 @@ def main():
 
     model = init_model(
         args.config, args.checkpoint, device=torch.device('cuda', args.device))
-
-    gc.collect()
+    
     restoration_video_inference(model, args.input_dir,
                                          args.window_size, args.start_idx,
                                          args.filename_tmpl, args,args.max_seq_len)
