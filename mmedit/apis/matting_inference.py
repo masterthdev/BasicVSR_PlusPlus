@@ -1,7 +1,6 @@
 # Copyright (c) OpenMMLab. All rights reserved.
 import mmcv
 import torch
-import torch.nn as nn
 from mmcv.parallel import collate, scatter
 from mmcv.runner import load_checkpoint
 
@@ -9,16 +8,16 @@ from mmedit.datasets.pipelines import Compose
 from mmedit.models import build_model
 
 
-def init_model(config, checkpoint=None,device='cuda:0'):
+def init_model(config, checkpoint=None, device='cuda:0'):
     """Initialize a model from config file.
-
+    
     Args:
         config (str or :obj:`mmcv.Config`): Config file path or the config
             object.
         checkpoint (str, optional): Checkpoint path. If left as None, the model
             will not load any weights.
         device (str): Which device the model will deploy. Default: 'cuda:0'.
-
+        
     Returns:
         nn.Module: The constructed model.
     """
@@ -33,20 +32,18 @@ def init_model(config, checkpoint=None,device='cuda:0'):
     if checkpoint is not None:
         checkpoint = load_checkpoint(model, checkpoint)
 
+    model.cfg = config  # save the config in the model for convenience
     model.to(device)
     model.eval()
     return model
-        
 
 
 def matting_inference(model, img, trimap):
     """Inference image(s) with the model.
-
     Args:
         model (nn.Module): The loaded model.
         img (str): Image file path.
         trimap (str): Trimap file path.
-
     Returns:
         np.ndarray: The predicted alpha matte.
     """
