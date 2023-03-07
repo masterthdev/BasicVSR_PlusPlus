@@ -6,6 +6,7 @@ import cv2
 import mmcv
 import numpy as np
 import torch
+import gc
 
 from mmedit.apis import init_model, restoration_video_inference
 from mmedit.core import tensor2img
