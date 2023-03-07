@@ -35,22 +35,25 @@ def restoration_video_inference(model,
 
     device = next(model.parameters()).device  # model device
 
-    # build the data pipeline
-    if model.cfg.get('demo_pipeline', None):
-        test_pipeline = model.cfg.demo_pipeline
-    elif model.cfg.get('test_pipeline', None):
-        test_pipeline = model.cfg.test_pipeline
-    else:
-        test_pipeline = model.cfg.val_pipeline
     
     video_reader = mmcv.VideoReader(img_dir)
     
     import math
     video_size = len(video_reader)
     batch_count = math.ceil(video_size/max_seq_len)
+    
     del video_reader
     gc.collect()
+    
     for batch in range(batch_count):
+        # build the data pipeline
+        if model.cfg.get('demo_pipeline', None):
+            test_pipeline = model.cfg.demo_pipeline
+        elif model.cfg.get('test_pipeline', None):
+            test_pipeline = model.cfg.test_pipeline
+        else:
+            test_pipeline = model.cfg.val_pipeline
+        
         batch_begin = batch * max_seq_len
         batch_end = batch_begin + max_seq_len
         # load the images
@@ -73,22 +76,26 @@ def restoration_video_inference(model,
             ]:
                 tmp_pipeline.append(pipeline)
         test_pipeline = tmp_pipeline
+        gc.collect()
 
         # compose the pipeline
         test_pipeline = Compose(test_pipeline)
         data = test_pipeline(data)
         data = data['lq'].unsqueeze(0)  # in cpu
+        gc.collect()
 
         # forward the model
         with torch.no_grad():
             for i in range(0, data.size(1), max_seq_len):
+                gc.collect()
                 output = []
                 output.append(
                     model(
                         lq=data[:, i:i + max_seq_len].to(device),
                         test_mode=True)['output'].cpu())
                 output = torch.cat(output, dim=1)
-
+                
+                gc.collect()
                 file_extension = os.path.splitext(args.output_dir)[1]
                 for ii in range(args.start_idx, args.start_idx + output.size(1)):
                     output_i = output[:, ii - args.start_idx, :, :, :]
