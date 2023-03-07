@@ -41,6 +41,7 @@ def parse_args():
         default=None,
         help='maximum sequence length if recurrent framework is used')
     parser.add_argument('--device', type=int, default=0, help='CUDA device id')
+    parser.add_argument('--kaggle', help='multi gpu', action='store_true')
     args = parser.parse_args()
     return args
 
@@ -54,9 +55,11 @@ def main():
     """
 
     args = parse_args()
-
-    model = init_model(
-        args.config, args.checkpoint, device=torch.device('cuda', args.device))
+    
+    if args.kaggle:
+        model = init_model(args.config, args.checkpoint, device=torch.device('cuda:0,1'))
+    else:
+        model = init_model(args.config, args.checkpoint, device=torch.device('cuda', args.device))
 
     restoration_video_inference(model, args.input_dir,
                                          args.window_size, args.start_idx,
