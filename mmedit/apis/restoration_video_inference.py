@@ -56,7 +56,7 @@ def restoration_video_inference(model,
         data = dict(lq=[], lq_path=None, key=img_dir)
         framno = 0
         for frame in video_reader:
-            if framno >= batch_begin && framno < batch_end:
+            if framno >= batch_begin and framno < batch_end:
                 data['lq'].append(np.flip(frame, axis=2))
                 print("vidframe " + str(framno))
             framno += 1
