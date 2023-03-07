@@ -26,15 +26,7 @@ def pad_sequence(data, window_size):
 
     return data
 
-def restoration_video_inference(model,
-                                img_dir,
-                                window_size,
-                                start_idx,
-                                filename_tmpl,args,
-                                max_seq_len=None):
-
-    device = next(model.parameters()).device  # model device
-
+def get_batch_count(img_dir):
     
     video_reader = mmcv.VideoReader(img_dir)
     
@@ -44,45 +36,61 @@ def restoration_video_inference(model,
     
     del video_reader
     gc.collect()
+    return batch_count
+
+def set_datas(model,batch,max_seq_len,img_dir):
+    test_pipeline = 0
+    # build the data pipeline
+    if model.cfg.get('demo_pipeline', None):
+        test_pipeline = model.cfg.demo_pipeline
+    elif model.cfg.get('test_pipeline', None):
+        test_pipeline = model.cfg.test_pipeline
+    else:
+        test_pipeline = model.cfg.val_pipeline
+    
+    batch_begin = batch * max_seq_len
+    batch_end = batch_begin + max_seq_len
+    # load the images
+    data = dict(lq=[], lq_path=None, key=img_dir)
+    framno = 0
+    video_reader = mmcv.VideoReader(img_dir)
+    for frame in video_reader:
+        if framno >= batch_begin and framno < batch_end:
+            data['lq'].append(np.flip(frame, axis=2))
+            print("vidframe " + str(framno))
+        framno += 1
+    del video_reader
+    gc.collect()
+    
+    # remove the data loading pipeline
+    tmp_pipeline = []
+    for pipeline in test_pipeline:
+        if pipeline['type'] not in [
+                'GenerateSegmentIndices', 'LoadImageFromFileList'
+        ]:
+            tmp_pipeline.append(pipeline)
+    test_pipeline = tmp_pipeline
+    gc.collect()
+
+    # compose the pipeline
+    test_pipeline = Compose(test_pipeline)
+    data = test_pipeline(data)
+    data = data['lq'].unsqueeze(0)  # in cpu
+    gc.collect()
+
+def restoration_video_inference(model,
+                                img_dir,
+                                window_size,
+                                start_idx,
+                                filename_tmpl,args,
+                                max_seq_len=None):
+
+    device = next(model.parameters()).device  # model device
+
+    batch_count = get_batch_count(img_dir)
     
     for batch in range(batch_count):
-        # build the data pipeline
-        if model.cfg.get('demo_pipeline', None):
-            test_pipeline = model.cfg.demo_pipeline
-        elif model.cfg.get('test_pipeline', None):
-            test_pipeline = model.cfg.test_pipeline
-        else:
-            test_pipeline = model.cfg.val_pipeline
-        
-        batch_begin = batch * max_seq_len
-        batch_end = batch_begin + max_seq_len
-        # load the images
-        data = dict(lq=[], lq_path=None, key=img_dir)
-        framno = 0
-        video_reader = mmcv.VideoReader(img_dir)
-        for frame in video_reader:
-            if framno >= batch_begin and framno < batch_end:
-                data['lq'].append(np.flip(frame, axis=2))
-                print("vidframe " + str(framno))
-            framno += 1
-        del video_reader
-        gc.collect()
-
-        # remove the data loading pipeline
-        tmp_pipeline = []
-        for pipeline in test_pipeline:
-            if pipeline['type'] not in [
-                    'GenerateSegmentIndices', 'LoadImageFromFileList'
-            ]:
-                tmp_pipeline.append(pipeline)
-        test_pipeline = tmp_pipeline
-        gc.collect()
-
-        # compose the pipeline
-        test_pipeline = Compose(test_pipeline)
-        data = test_pipeline(data)
-        data = data['lq'].unsqueeze(0)  # in cpu
-        gc.collect()
+        data = set_datas(model,batch,max_seq_len,img_dir)
 
         # forward the model
         with torch.no_grad():
