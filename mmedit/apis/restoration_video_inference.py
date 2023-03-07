@@ -76,7 +76,9 @@ def set_datas(model,batch,max_seq_len,img_dir):
     test_pipeline = Compose(test_pipeline)
     data = test_pipeline(data)
     data = data['lq'].unsqueeze(0)  # in cpu
+    del test_pipeline
     gc.collect()
+    return data
 
 def restoration_video_inference(model,
                                 img_dir,
