@@ -56,10 +56,7 @@ def main():
 
     args = parse_args()
     
-    if args.kaggle:
-        model = init_model(args.config, args.checkpoint, device=torch.device('cuda:0,1'))
-    else:
-        model = init_model(args.config, args.checkpoint, device=torch.device('cuda', args.device))
+    model = init_model(args.config, args.checkpoint, args.kaggle)
 
     restoration_video_inference(model, args.input_dir,
                                          args.window_size, args.start_idx,
