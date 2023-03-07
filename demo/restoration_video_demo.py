@@ -54,12 +54,14 @@ def main():
     """
 
     args = parse_args()
-    
-    model = init_model(args.config, args.checkpoint, torch.device("cuda", args.device))
+
+    model = init_model(
+        args.config, args.checkpoint, device=torch.device('cuda', args.device))
 
     restoration_video_inference(model, args.input_dir,
                                          args.window_size, args.start_idx,
                                          args.filename_tmpl, args,args.max_seq_len)
+
 
 
 if __name__ == '__main__':
