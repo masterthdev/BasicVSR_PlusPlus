@@ -8,7 +8,7 @@ import os
 import mmcv
 import numpy as np
 import torch
-
+import gc
 from mmedit.datasets.pipelines import Compose
 from mmedit.core import tensor2img
 
@@ -48,7 +48,8 @@ def restoration_video_inference(model,
     import math
     video_size = len(video_reader)
     batch_count = math.ceil(video_size/max_seq_len)
-    video_reader = null
+    del video_reader
+    gc.collect()
     for batch in range(batch_count):
         batch_begin = batch * max_seq_len
         batch_end = batch_begin + max_seq_len
@@ -61,7 +62,8 @@ def restoration_video_inference(model,
                 data['lq'].append(np.flip(frame, axis=2))
                 print("vidframe " + str(framno))
             framno += 1
-        video_reader = null
+        del video_reader
+        gc.collect()
 
         # remove the data loading pipeline
         tmp_pipeline = []
