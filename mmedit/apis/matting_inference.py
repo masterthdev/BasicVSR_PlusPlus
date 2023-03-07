@@ -9,7 +9,7 @@ from mmedit.datasets.pipelines import Compose
 from mmedit.models import build_model
 
 
-def init_model(config, checkpoint=None, kaggle=False,device='cuda:0'):
+def init_model(config, checkpoint=None,device='cuda:0'):
     """Initialize a model from config file.
 
     Args:
@@ -33,18 +33,9 @@ def init_model(config, checkpoint=None, kaggle=False,device='cuda:0'):
     if checkpoint is not None:
         checkpoint = load_checkpoint(model, checkpoint)
 
-    model.cfg = config  # save the config in the model for convenience
-    if kaggle:
-        device = torch.device("cuda")
-        model= nn.DataParallel(model, device_ids=[0, 1])
-        model.to(device)
-        model.eval()
-        return model.module
-    else:
-        device = torch.device("cuda:0")
-        model.to(device)
-        model.eval()
-        return model
+    model.to(device)
+    model.eval()
+    return model
         
 
 
