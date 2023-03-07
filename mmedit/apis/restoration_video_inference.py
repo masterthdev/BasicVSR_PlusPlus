@@ -26,7 +26,7 @@ def pad_sequence(data, window_size):
 
     return data
 
-def get_batch_count(img_dir):
+def get_batch_count(img_dir,max_seq_len):
     
     video_reader = mmcv.VideoReader(img_dir)
     
@@ -87,7 +87,7 @@ def restoration_video_inference(model,
 
     device = next(model.parameters()).device  # model device
 
-    batch_count = get_batch_count(img_dir)
+    batch_count = get_batch_count(img_dir,max_seq_len)
     
     for batch in range(batch_count):
         data = set_datas(model,batch,max_seq_len,img_dir)
